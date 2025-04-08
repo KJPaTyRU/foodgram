@@ -1,6 +1,8 @@
 frontend/node_modules
 infra/frontend/build
 .env
+test_requests.http
+images
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
