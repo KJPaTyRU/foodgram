@@ -1,0 +1,44 @@
+###
+
+post http://127.0.0.1:8000/api/users/
+content-type: application/json
+
+{
+  "email": "pev@yandex.ru",
+  "username": "arl",
+  "first_name": "Вася",
+  "last_name": "Иванов",
+  "password": "hhhjspiri345355"
+}
+
+###
+POST http://127.0.0.1:8000/api/auth/token/login/
+content-type: application/json
+
+{
+"password": "hhhjspiri345355",
+"email": "pev@yandex.ru"
+}
+
+
+###
+post http://127.0.0.1:8000/api/recipes/
+content-type: application/json
+Authorization: Token eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ0MzcxMjEzLCJpYXQiOjE3NDQxMTIwMTMsImp0aSI6ImZiYTFiOTU1MzQ4YjQ3NDFhM2FkNDM4MzIyNjQ3MDRhIiwidXNlcl9pZCI6MX0.h1FwuDx0C1vHQyN73EPcUSmKuCqp4C8UzI_Trv3kk-I
+
+{
+  "ingredients": [
+    {
+      "id": 1,
+      "amount": 10
+    }
+  ],
+  "tags": [
+    1,
+    2
+  ],
+  "image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAgMAAABieywaAAAACVBMVEUAAAD///9fX1/S0ecCAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAACklEQVQImWNoAAAAggCByxOyYQAAAABJRU5ErkJggg==",
+  "name": "string",
+  "text": "string",
+  "cooking_time": 1
+}

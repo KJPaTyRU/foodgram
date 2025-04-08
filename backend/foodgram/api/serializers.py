@@ -175,6 +175,14 @@ class IngredientInRecieptReadSerializer(serializers.ModelSerializer):
         fields = ["id", "name", "measurement_unit", "amount"]
 
 
+class TestSerializer(serializers.ModelSerializer):
+    amount = serializers.ReadOnlyField(source="i2r.name")
+
+    class Meta:
+        model = Ingredient
+        fields = ["id", "name", "measurement_unit", "amount"]
+
+
 class RecieptCreateSerializer(serializers.ModelSerializer):
     ingredients = IngredientInRecieptSerializer(many=True)
     image = Base64ImageField(required=True)
@@ -193,7 +201,7 @@ class RecieptCreateSerializer(serializers.ModelSerializer):
             "ingredients",
         ]
 
-    def create(self, validated_data):
+    def create(self, validated_data: dict):
         user = self.context.get("request").user
         ingredients_data = validated_data.pop("ingredients")
         tags_data = validated_data.pop("tags")
@@ -202,94 +210,40 @@ class RecieptCreateSerializer(serializers.ModelSerializer):
         self._save_ingredients(ingredients_data, reciept)
         return reciept
 
-    def _save_ingredients(self, ingredients_data, reciept):
+    def _save_ingredients(
+        self, ingredients_data: list[dict], reciept: Reciept
+    ):
         for item in ingredients_data:
             ingredient = Ingredient.objects.get(id=item["id"])
-            IngredientReciept.objects.create(
+            obj = IngredientReciept.objects.create(
                 reciept=reciept, ingredient=ingredient, amount=item["amount"]
             )
+            reciept.i2r.add(obj)
 
 
-# class RecieptSerializer(serializers.ModelSerializer):
-#     ingredients = serializers.ListField(child=serializers.DictField())
-#     tags = serializers.PrimaryKeyRelatedField(
-#         many=True, queryset=Tag.objects.all()
-#     )
-#     author = UserSerializer(read_only=True)
-#     image = Base64ImageField(required=True)
-#     name = serializers.CharField(
-#         max_length=256,
-#         required=True,
-#         validators=[
-#             RegexValidator(
-#                 regex=r"^[\w\s\-\'\",.!()]{3,100}$",
-#                 message="Недопустимые символы в названии блюда.",
-#             )
-#         ],
-#     )
-#     text = serializers.CharField(required=True)
-#     cooking_time = serializers.IntegerField(required=True)
+class RecieptSerializer(serializers.ModelSerializer):
+    tags = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=Tag.objects.all()
+    )
+    author = UserSerializer(read_only=True)
+    # ingredients = IngredientInRecieptReadSerializer(many=True)
+    ingredients = TestSerializer(many=True)
+    image = Base64ImageField(required=True)
+    name = serializers.CharField(required=True)
+    text = serializers.CharField(required=True)
+    cooking_time = serializers.IntegerField(required=True)
 
-#     def validate_cooking_time(self, value):
-#         if value < 1 or value > 10001:
-#             raise InvalidData("cooking_time")
-#         return value
-
-#     # def validate_tags(self, value):
-#     #     for tag in value:
-#     #         if not Tag.objects.filter(id=tag).exists():
-#     #             raise InvalidData("tags_id")
-#     #     return value
-
-#     def create(self, validated_data):
-#         user = self.context.get("request").user
-#         ingredients_data = validated_data.pop("ingredients")
-#         tags_data = validated_data.pop("tags")
-#         reciept = Reciept.objects.create(**validated_data, author=user)
-#         reciept.tags.set(tags_data)
-#         for ingredient_data in ingredients_data:
-#             # serializer = IngredientRecieptSerializer(data=ingredient_data)
-#             # if serializer.is_valid():
-#             IngredientReciept.objects.create(
-#                 reciept=reciept,
-#                 ingredient=Ingredient.objects.get(id=ingredient_data["id"]),
-#                 amount=ingredient_data["amount"],
-#             )
-#         return reciept
-
-#     def update(self, instance, validated_data):
-#         ingredients_data = validated_data.pop("ingredients", None)
-#         tags_data = validated_data.pop("tags", None)
-#         instance.name = validated_data.get("name", instance.name)
-#         instance.text = validated_data.get("text", instance.text)
-#         instance.cooking_time = validated_data.get(
-#             "cooking_time", instance.cooking_time
-#         )
-#         instance.image = validated_data.get("image", instance.image)
-#         instance.save()
-#         if tags_data is not None:
-#             instance.tags.set(tags_data)
-#         if ingredients_data is not None:
-#             instance.ingredientreciept_set.all().delete()
-#             for ingredient_data in ingredients_data:
-#                 IngredientReciept.objects.create(
-#                     reciept=instance,
-#                     ingredient_id=ingredient_data["ingredient"],
-#                     amount=ingredient_data["amount"],
-#                 )
-#         return instance
-
-#     class Meta:
-#         model = Reciept
-#         fields = (
-#             "id",
-#             "tags",
-#             "author",
-#             "ingredients",
-#             "is_favorited",
-#             "is_in_shopping_cart",
-#             "name",
-#             "image",
-#             "text",
-#             "cooking_time",
-#         )
+    class Meta:
+        model = Reciept
+        fields = (
+            "id",
+            "tags",
+            "author",
+            "ingredients",
+            "is_favorited",
+            "is_in_shopping_cart",
+            "name",
+            "image",
+            "text",
+            "cooking_time",
+        )

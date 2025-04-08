@@ -96,8 +96,12 @@ class Reciept(models.Model):
 
 
 class IngredientReciept(models.Model):
-    ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
-    reciept = models.ForeignKey(Reciept, on_delete=models.CASCADE)
+    ingredient = models.ForeignKey(
+        Ingredient, on_delete=models.CASCADE, related_name="i2r"
+    )
+    reciept = models.ForeignKey(
+        Reciept, on_delete=models.CASCADE, related_name="i2r"
+    )
     amount = models.IntegerField()
 
 

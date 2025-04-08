@@ -12,6 +12,7 @@ from reciepts.models import CustomUser, Tag, Ingredient, Reciept
 from api.models import BlacklistedTokens
 from api.pagination import PageLimitPagination
 from api.serializers import (
+    RecieptSerializer,
     UserSerializer,
     SignUpSerializer,
     CustomTokenObtainSerializer,
@@ -130,3 +131,15 @@ class RecieptViewSet(viewsets.ModelViewSet):
     queryset = Reciept.objects.all()
     serializer_class = RecieptCreateSerializer
     permission_classes = (permissions.AllowAny,)
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        recept = self.perform_create(serializer)
+
+        front_ser = RecieptSerializer(instance=recept)
+
+        return Response(front_ser.data, status=status.HTTP_201_CREATED)
+
+    def perform_create(self, serializer) -> Reciept:
+        return serializer.save()
