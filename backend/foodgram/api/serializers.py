@@ -176,7 +176,7 @@ class IngredientInRecieptReadSerializer(serializers.ModelSerializer):
 
 
 class TestSerializer(serializers.ModelSerializer):
-    amount = serializers.ReadOnlyField(source="i2r.name")
+    amount = serializers.ReadOnlyField(source="i2r.amount")
 
     class Meta:
         model = Ingredient
@@ -218,7 +218,6 @@ class RecieptCreateSerializer(serializers.ModelSerializer):
             obj = IngredientReciept.objects.create(
                 reciept=reciept, ingredient=ingredient, amount=item["amount"]
             )
-            reciept.i2r.add(obj)
 
 
 class RecieptSerializer(serializers.ModelSerializer):
